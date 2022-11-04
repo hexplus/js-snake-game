@@ -11,6 +11,7 @@ const step = {
 }
 
 let score = 0;
+let highScore = 0;
 
 let snake = {
     x: 0,
@@ -33,15 +34,17 @@ setRandomPosition(snake);
 
 function restart(){
     step.count = 0;
-    score = 0;
+    score = 0;    
     snake.segments = [];
     snake.dirX = 0;
     snake.dirY = 0;
     snake.len = 1;
     snake.direction = '';
-    renderScore();
+    loadHighScore();
+    renderScores();
     setRandomPosition(food);
     setRandomPosition(snake);
+    
 }
 
 restart()
@@ -80,15 +83,29 @@ function renderSnake() {
     
 }
 
-function renderScore() {
-    let scoreElement = document.getElementById('score');
-    scoreElement.innerText = score;
+function saveHighScore() {    
+    localStorage.setItem("snake-hi-score", highScore);
+}
+
+function loadHighScore() {
+    let hs = localStorage.getItem("snake-hi-score");
+    hs == null ? highScore = 0 : highScore = hs;
+}
+
+function renderScores() {
+    document.getElementById('score').innerText = score;
+    document.getElementById('high-score').innerText = highScore;
+    
 }
 
 function checkFoodCollision(segment) {
     if ( segment.x == food.x && segment.y == food.y ) {
-        score++;
-        renderScore();
+        score++;        
+        if(score > highScore) { 
+            highScore = score;
+            saveHighScore();
+        }
+        renderScores();
         snake.len++;
         setRandomPosition(food);
         renderFood();        
@@ -97,54 +114,56 @@ function checkFoodCollision(segment) {
 
 function checkBordersCollision() {
 
-    if ( snake.x < 0 ) {
-        snake.x = -tileSize;
-        snake.direction = 'right';
-        snake.dirX = tileSize;
-        snake.dirY = 0;
-        if(snake.y < canvas.height / 2) {
-            snake.y = snake.y + tileSize;
-        } else {
-            snake.y = snake.y - tileSize;
-        }
-    } else if (snake.x >= canvas.width) {
-        snake.x = canvas.width;
-        snake.direction = 'left';
-        snake.dirX = -tileSize;
-        snake.dirY = 0;
-        if(snake.y < canvas.height / 2) {
-            snake.y = snake.y + tileSize;
-        } else {
-            snake.y = snake.y - tileSize;
-        }
-    }
+    // If you want revert snake direction
+    // if ( snake.x < 0 ) {
+    //     snake.x = -tileSize;
+    //     snake.direction = 'right';
+    //     snake.dirX = tileSize;
+    //     snake.dirY = 0;
+    //     if(snake.y < canvas.height / 2) {
+    //         snake.y = snake.y + tileSize;
+    //     } else {
+    //         snake.y = snake.y - tileSize;
+    //     }
+    // } else if (snake.x >= canvas.width) {
+    //     snake.x = canvas.width;
+    //     snake.direction = 'left';
+    //     snake.dirX = -tileSize;
+    //     snake.dirY = 0;
+    //     if(snake.y < canvas.height / 2) {
+    //         snake.y = snake.y + tileSize;
+    //     } else {
+    //         snake.y = snake.y - tileSize;
+    //     }
+    // }
 
-    if ( snake.y < 0 ) {
-        snake.y = -tileSize;
-        snake.direction = 'down';
-        snake.dirX = 0;
-        snake.dirY = tileSize;
-        if(snake.x < canvas.height / 2) {
-            snake.x = snake.x + tileSize;
-        } else {
-            snake.x = snake.x - tileSize;
-        }
-    } else if (snake.y >= canvas.height) {
-        snake.y = canvas.height;
-        snake.direction = 'up';
-        snake.dirX = 0;
-        snake.dirY = -tileSize;
-        if(snake.x < canvas.height / 2) {
-            snake.x = snake.x + tileSize;
-        } else {
-            snake.x = snake.x - tileSize;
-        }
-    }
+    // if ( snake.y < 0 ) {
+    //     snake.y = -tileSize;
+    //     snake.direction = 'down';
+    //     snake.dirX = 0;
+    //     snake.dirY = tileSize;
+    //     if(snake.x < canvas.height / 2) {
+    //         snake.x = snake.x + tileSize;
+    //     } else {
+    //         snake.x = snake.x - tileSize;
+    //     }
+    // } else if (snake.y >= canvas.height) {
+    //     snake.y = canvas.height;
+    //     snake.direction = 'up';
+    //     snake.dirX = 0;
+    //     snake.dirY = -tileSize;
+    //     if(snake.x < canvas.height / 2) {
+    //         snake.x = snake.x + tileSize;
+    //     } else {
+    //         snake.x = snake.x - tileSize;
+    //     }
+    // }
     
-    // if border collision, restart    
-    // if ( snake.x < 0 || snake.x >= canvas.width || snake.y < 0 || snake.y >= canvas.height) {
-	// 	restart();
-	// }
+    //if border collision, restart    
+    if ( snake.x < 0 || snake.x >= canvas.width || snake.y < 0 || snake.y >= canvas.height) {
+        saveHighScore();
+		restart();
+	}
 }
 
 function checkTailCollission(segment, idx) {
