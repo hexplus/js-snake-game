@@ -1,3 +1,3 @@
 ## Snake Game
 
-Simple snake game in JavaScrip
+Simple snake game in JavaScript
